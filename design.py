@@ -52,6 +52,19 @@ class element:
     #self.parent.w.create_line(self.p.x, self.p.y, self.p.x+20, self.p.y, fill=self.st)
     #self.parent.arc(self.p.x+20, self.p.y+20, 20, 270, 180, self.st)
 
+class line(element):
+  def __str__(self):
+    return 'line'
+  def __init__(self, parent, p, name=None, ins=None, st='black'):
+    super().__init__(parent, p, name, ins, st)
+    self.parent.c1 = self.i2
+    self.e = self.p
+  def i2(self, ev):
+    self.e = pos(ev.x, ev.y)
+    self.parent.c1 = None
+  def render(self):
+    self.parent.w.create_line(self.p.x,self.p.y,self.e.x,self.e.y, fill=self.st)
+  
 class UUIDs:
   def arc(self,x,y,r,s,e, outline='black'):
     if e >= 360:
@@ -76,6 +89,7 @@ class UUIDs:
     self.in_motion = None
     self.click_moved = False
     self.rounding = True
+    self.c1 = None
   def get(self, x):
     for e in self.UUIDS:
       if e.UUID == x:
@@ -115,6 +129,8 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
+    if self.c1 is not None:
+      return
     self.click_moved = False
     self.in_motion = None
     for e in self.UUIDS:
@@ -125,6 +141,9 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
+    if self.c1 is not None:
+      self.c1(ev)
+      return
     if not self.click_moved:
       for e in self.UUIDS:
         if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
@@ -134,6 +153,8 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
+    if self.c1 is not None:
+      return
     self.click_moved = True
     if self.in_motion is not None:
       self.get(self.in_motion).motion(ev)
@@ -156,7 +177,7 @@ class UUIDs:
       ev.y = round(ev.y, -1)
     print(ev)
     if ev.keycode > 111 and ev.keycode < 111+13:
-      gates = [None, element]
+      gates = [None, element, line]
       b = gates[ev.keycode-111]
       self.new(b, pos(ev.x-b.s.w//2, ev.y-b.s.h//2))
     if ev.keycode == 220:

@@ -75,6 +75,7 @@ class UUIDs:
     self.w.focus_set()
     self.in_motion = None
     self.click_moved = False
+    self.rounding = True
   def get(self, x):
     for e in self.UUIDS:
       if e.UUID == x:
@@ -111,6 +112,9 @@ class UUIDs:
       e.render()
     self.tk.update()
   def onclick1(self, ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
     self.click_moved = False
     self.in_motion = None
     for e in self.UUIDS:
@@ -118,18 +122,27 @@ class UUIDs:
       and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
         self.in_motion = e.UUID
   def onrel1(self,ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
     if not self.click_moved:
       for e in self.UUIDS:
         if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
         and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
           e.onclick1()
   def motion1(self, ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
     self.click_moved = True
     if self.in_motion is not None:
       self.get(self.in_motion).motion(ev)
   def onclick2(self, ev):
     self.click_moved = False
   def onrel2(self,ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
     if not self.click_moved:
       for e in self.UUIDS:
         if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
@@ -138,6 +151,9 @@ class UUIDs:
   def motion2(self, ev):
     self.click_moved = True
   def onkey(self, ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
     print(ev)
     if ev.keycode > 111 and ev.keycode < 111+13:
       gates = [None, element]

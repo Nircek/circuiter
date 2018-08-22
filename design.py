@@ -59,11 +59,15 @@ class line(element):
     super().__init__(parent, p, name, ins, st)
     self.parent.h1 = True
     self.parent.r1 = self.r1
+    self.parent.m = self.m
     self.e = self.p
   def r1(self, ev):
     self.e = pos(ev.x, ev.y)
     self.parent.r1 = None
+    self.parent.m = None
     self.parent.h1 = False
+  def m(self, ev):
+    self.e = pos(ev.x, ev.y)
   def render(self):
     self.parent.w.create_line(self.p.x,self.p.y,self.e.x,self.e.y, fill=self.st)
   
@@ -86,6 +90,7 @@ class UUIDs:
     self.w.bind('<ButtonRelease-3>', self.onrel2)
     self.w.bind('<B3-Motion>', self.motion2)
     self.w.bind('<KeyPress>',self.onkey)
+    self.w.bind('<Motion>', self.motion)
     self.w.pack()
     self.w.focus_set()
     self.in_motion = None
@@ -95,6 +100,7 @@ class UUIDs:
     self.c1 = None
     self.m1 = None
     self.r1 = None
+    self.m = None
   def get(self, x):
     for e in self.UUIDS:
       if e.UUID == x:
@@ -130,6 +136,14 @@ class UUIDs:
     for e in self.UUIDS:
       e.render()
     self.tk.update()
+  def motion(self, ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
+    if self.h1:
+      if self.m is not None:
+        self.m(ev)
+      return
   def onclick1(self, ev):
     if self.rounding:
       ev.x = round(ev.x, -1)

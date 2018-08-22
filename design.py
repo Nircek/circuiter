@@ -57,11 +57,13 @@ class line(element):
     return 'line'
   def __init__(self, parent, p, name=None, ins=None, st='black'):
     super().__init__(parent, p, name, ins, st)
-    self.parent.c1 = self.i2
+    self.parent.h1 = True
+    self.parent.r1 = self.r1
     self.e = self.p
-  def i2(self, ev):
+  def r1(self, ev):
     self.e = pos(ev.x, ev.y)
-    self.parent.c1 = None
+    self.parent.r1 = None
+    self.parent.h1 = False
   def render(self):
     self.parent.w.create_line(self.p.x,self.p.y,self.e.x,self.e.y, fill=self.st)
   
@@ -89,7 +91,10 @@ class UUIDs:
     self.in_motion = None
     self.click_moved = False
     self.rounding = True
+    self.h1 = False
     self.c1 = None
+    self.m1 = None
+    self.r1 = None
   def get(self, x):
     for e in self.UUIDS:
       if e.UUID == x:
@@ -129,7 +134,9 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.c1 is not None:
+    if self.h1:
+      if self.c1 is not None:
+        self.c1(ev)
       return
     self.click_moved = False
     self.in_motion = None
@@ -141,8 +148,9 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.c1 is not None:
-      self.c1(ev)
+    if self.h1:
+      if self.r1 is not None:
+        self.r1(ev)
       return
     if not self.click_moved:
       for e in self.UUIDS:
@@ -153,7 +161,9 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.c1 is not None:
+    if self.h1:
+      if self.m1 is not None:
+        self.m1(ev)
       return
     self.click_moved = True
     if self.in_motion is not None:

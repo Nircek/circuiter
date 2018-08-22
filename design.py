@@ -10,6 +10,9 @@ class pos:
     self.y = a[1]
     self.w = a[0]
     self.h = a[1]
+
+def dist(a,b):
+  return math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
     
 class element:
   slots = 0
@@ -62,7 +65,6 @@ class line(element):
     self.parent.m = self.m
     self.e = self.p
   def r1(self, ev):
-    self.e = pos(ev.x, ev.y)
     self.parent.r1 = None
     self.parent.m = None
     self.parent.h1 = False
@@ -70,6 +72,25 @@ class line(element):
     self.e = pos(ev.x, ev.y)
   def render(self):
     self.parent.w.create_line(self.p.x,self.p.y,self.e.x,self.e.y, fill=self.st)
+
+class arc(element):
+  def __str__(self):
+    return 'arc'
+  def __init__(self, parent, p, name=None, ins=None, st='black'):
+    super().__init__(parent, p, name, ins, st)
+    self.arc = [0, 360]
+    self.r = 0
+    self.parent.r1 = self.r1
+    self.parent.m = self.m
+    self.parent.h1 = True
+  def m(self, ev):
+    self.r = dist(self.p, ev)
+  def r1(self, ev):
+    self.parent.h1 = False
+    self.parent.m = None
+    self.parent.r1 = None
+  def render(self):
+    self.parent.arc(self.p.x, self.p.y, self.r, self.arc[0], self.arc[1], self.st)
   
 class UUIDs:
   def arc(self,x,y,r,s,e, outline='black'):
@@ -201,7 +222,7 @@ class UUIDs:
       ev.y = round(ev.y, -1)
     print(ev)
     if ev.keycode > 111 and ev.keycode < 111+13:
-      gates = [None, element, line]
+      gates = [None, element, line, arc]
       b = gates[ev.keycode-111]
       self.new(b, pos(ev.x-b.s.w//2, ev.y-b.s.h//2))
     if ev.keycode == 220:

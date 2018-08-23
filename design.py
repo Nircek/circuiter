@@ -6,13 +6,27 @@ class pos:
   def __init__(self, *a):
     if len(a) == 1:
       a = a[0]
+    if hasattr(a, 'x') and hasattr(a, 'y'):
+      a = (a.x, a.y)
     self.x = a[0]
     self.y = a[1]
     self.w = a[0]
     self.h = a[1]
+  def arr(self):
+    return (self.x, self.y)
 
 def dist(a,b):
   return math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
+
+def az(a,b):
+  # SRC: https://gist.github.com/Nircek/76453baf3f734215a4e56c5479e3d964
+  """It calculates azimuth from a( [dd, dd] ) to b( [dd, dd] )"""
+  dx = b[0] - a[0]
+  dy = b[1] - a[1]
+  a = math.degrees(math.atan2(dy, dx))
+  if a < 0:
+    a += 360
+  return a
     
 class element:
   slots = 0
@@ -86,6 +100,24 @@ class arc(element):
   def m(self, ev):
     self.r = dist(self.p, ev)
   def r1(self, ev):
+    self.parent.m = self.m_1
+    self.parent.r1 = self.r1_1
+    self.arc[1] = 180 - 45
+    self.m_1(ev)
+  def m_1(self, ev):
+    self.arc[0] = 360 - az(self.p.arr(), pos(ev).arr())
+    self.arc[0] = math.ceil(self.arc[0]/5)*5
+  def r1_1(self, ev):
+    self.parent.m = self.m_2
+    self.parent.r1 = self.r1_2
+    self.m_2(ev)
+  def m_2(self, ev):
+    self.arc[1] = 360 - az(self.p.arr(), pos(ev).arr()) - self.arc[0]
+    if self.arc[1] <= 0:
+      self.arc[1] += 360
+    self.arc[1] = round(self.arc[1]/5)*5
+    print(self.arc[1])
+  def r1_2(self, ev):
     self.parent.h1 = False
     self.parent.m = None
     self.parent.r1 = None

@@ -136,20 +136,22 @@ class UUIDs:
     self.UUIDi = -1
     self.tk = Tk()
     self.w = Canvas(self.tk, width=WIDTH, height=HEIGHT)
-    self.w.bind('<Button 1>',self.onclick1)
-    self.w.bind('<ButtonRelease-1>', self.onrel1)
-    self.w.bind('<B1-Motion>', self.motion1)
-    self.w.bind('<Button 3>',self.onclick2)
-    self.w.bind('<ButtonRelease-3>', self.onrel2)
-    self.w.bind('<B3-Motion>', self.motion2)
-    self.w.bind('<KeyPress>',self.onkey)
-    self.w.bind('<Motion>', self.motion)
+    self.w.bind('<Button 1>',         self.hc1)
+    self.w.bind('<ButtonRelease-1>',  self.hr1)
+    self.w.bind('<B1-Motion>',        self.hm1)
+    self.w.bind('<Button 3>',         self.hc2)
+    self.w.bind('<ButtonRelease-3>',  self.hr2)
+    self.w.bind('<B3-Motion>',        self.hm2)
+    self.w.bind('<Motion>',           self.hm)
+    self.w.bind('<KeyPress>',         self.onkey)
     self.w.pack()
     self.w.focus_set()
     self.in_motion = None
     self.click_moved = False
     self.rounding = True
-    self.h = False
+    self.h = None
+    self.hs = {'c1':self.onclick1, 'm1':self.motion1, 'r1':self.onrel1,
+    'c2':self.onclick2, 'm2':self.motion2, 'r2':self.onrel2, 'm': self.motion}
     self.c1 = None
     self.m1 = None
     self.r1 = None
@@ -157,6 +159,30 @@ class UUIDs:
     self.m2 = None
     self.r2 = None
     self.m = None
+  def hc1(self, ev):
+    self.hh('c1', ev)
+  def hr1(self, ev):
+    self.hh('r1', ev)
+  def hm1(self, ev):
+    self.hh('m1', ev)
+  def hc2(self, ev):
+    self.hh('c2', ev)
+  def hr2(self, ev):
+    self.hh('r2', ev)
+  def hm2(self, ev):
+    self.hh('m2', ev)
+  def hm(self, ev):
+    self.hh('m', ev)
+  def hh(self, h, ev):
+    if self.rounding:
+      ev.x = round(ev.x, -1)
+      ev.y = round(ev.y, -1)
+    if self.h is not None:
+      if h in self.h:
+        print('k')
+        self.h[h](ev)
+    else:
+      self.hs[h](ev)
   def get(self, x):
     for e in self.UUIDS:
       if e.UUID == x:
@@ -193,21 +219,8 @@ class UUIDs:
       e.render()
     self.tk.update()
   def motion(self, ev):
-    if self.rounding:
-      ev.x = round(ev.x, -1)
-      ev.y = round(ev.y, -1)
-    if self.h:
-      if self.m is not None:
-        self.m(ev)
-      return
+    pass
   def onclick1(self, ev):
-    if self.rounding:
-      ev.x = round(ev.x, -1)
-      ev.y = round(ev.y, -1)
-    if self.h:
-      if self.c1 is not None:
-        self.c1(ev)
-      return
     self.click_moved = False
     self.in_motion = None
     for e in self.UUIDS:
@@ -215,59 +228,24 @@ class UUIDs:
       and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
         self.in_motion = e.UUID
   def onrel1(self,ev):
-    if self.rounding:
-      ev.x = round(ev.x, -1)
-      ev.y = round(ev.y, -1)
-    if self.h:
-      if self.r1 is not None:
-        self.r1(ev)
-      return
     if not self.click_moved:
       for e in self.UUIDS:
         if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
         and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
           e.onclick1()
   def motion1(self, ev):
-    if self.rounding:
-      ev.x = round(ev.x, -1)
-      ev.y = round(ev.y, -1)
-    if self.h:
-      if self.m1 is not None:
-        self.m1(ev)
-      return
     self.click_moved = True
     if self.in_motion is not None:
       self.get(self.in_motion).motion(ev)
   def onclick2(self, ev):
-    if self.h:
-      if self.c2 is not None:
-        if self.rounding:
-          ev.x = round(ev.x, -1)
-          ev.y = round(ev.y, -1)
-        self.c2(ev)
-      return
     self.click_moved = False
   def onrel2(self,ev):
-    if self.rounding:
-      ev.x = round(ev.x, -1)
-      ev.y = round(ev.y, -1)
-    if self.h:
-      if self.r2 is not None:
-        self.r2(ev)
-      return
     if not self.click_moved:
       for e in self.UUIDS:
         if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
         and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
           e.onclick2()
   def motion2(self, ev):
-    if self.h:
-      if self.m2 is not None:
-        if self.rounding:
-          ev.x = round(ev.x, -1)
-          ev.y = round(ev.y, -1)
-        self.m2(ev)
-      return
     self.click_moved = True
   def onkey(self, ev):
     if self.rounding:

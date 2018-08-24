@@ -91,33 +91,24 @@ class arc(element):
     super().__init__(parent, p, name, ins, st)
     self.arc = [0, 360]
     self.r = 0
-    self.parent.r1 = self.r1
-    self.parent.m = self.m
-    self.parent.h = True
+    self.parent.h = {'r1': self.r1, 'm': self.m}
   def m(self, ev):
     self.r = dist(self.p, ev)
   def r1(self, ev):
-    self.parent.m = self.m_1
-    self.parent.r1 = self.r1_1
+    self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
     self.arc[1] = 180 - 45
-    self.m_1(ev)
   def m_1(self, ev):
     self.arc[0] = 360 - az(self.p.arr(), pos(ev).arr())
     self.arc[0] = math.ceil(self.arc[0]/5)*5
   def r1_1(self, ev):
-    self.parent.m = self.m_2
-    self.parent.r1 = self.r1_2
-    self.m_2(ev)
+    self.parent.h = {'r1': self.r1_2, 'm': self.m_2}
   def m_2(self, ev):
     self.arc[1] = 360 - az(self.p.arr(), pos(ev).arr()) - self.arc[0]
     if self.arc[1] <= 0:
       self.arc[1] += 360
     self.arc[1] = round(self.arc[1]/5)*5
-    print(self.arc[1])
   def r1_2(self, ev):
-    self.parent.h = False
-    self.parent.m = None
-    self.parent.r1 = None
+    self.parent.h = None
   def render(self):
     self.parent.arc(self.p.x, self.p.y, self.r, self.arc[0], self.arc[1], self.st)
   
@@ -176,7 +167,6 @@ class UUIDs:
       ev.y = round(ev.y, -1)
     if self.h is not None:
       if h in self.h:
-        print('k')
         self.h[h](ev)
     else:
       self.hs[h](ev)

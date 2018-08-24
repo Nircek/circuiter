@@ -153,6 +153,9 @@ class UUIDs:
     self.c1 = None
     self.m1 = None
     self.r1 = None
+    self.c2 = None
+    self.m2 = None
+    self.r2 = None
     self.m = None
   def get(self, x):
     for e in self.UUIDS:

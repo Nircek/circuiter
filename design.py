@@ -74,18 +74,15 @@ class line(element):
     return 'line'
   def __init__(self, parent, p, name=None, ins=None, st='black'):
     super().__init__(parent, p, name, ins, st)
-    self.parent.h = True
-    self.parent.r1 = self.r1
-    self.parent.m = self.m
+    self.parent.h = {'r1': self.r1, 'm': self.m}
     self.e = self.p
   def r1(self, ev):
-    self.parent.r1 = None
-    self.parent.m = None
-    self.parent.h = False
+    self.parent.h = None
   def m(self, ev):
     self.e = pos(ev.x, ev.y)
   def render(self):
     self.parent.w.create_line(self.p.x,self.p.y,self.e.x,self.e.y, fill=self.st)
+
 
 class arc(element):
   def __str__(self):

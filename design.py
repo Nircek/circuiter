@@ -140,13 +140,6 @@ class UUIDs:
     self.h = None
     self.hs = {'c1':self.onclick1, 'm1':self.motion1, 'r1':self.onrel1,
     'c2':self.onclick2, 'm2':self.motion2, 'r2':self.onrel2, 'm': self.motion}
-    self.c1 = None
-    self.m1 = None
-    self.r1 = None
-    self.c2 = None
-    self.m2 = None
-    self.r2 = None
-    self.m = None
   def hc1(self, ev):
     self.hh('c1', ev)
   def hr1(self, ev):

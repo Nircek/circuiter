@@ -162,7 +162,12 @@ class UUIDs:
       if h in self.h:
         self.h[h](ev)
     else:
-      self.hs[h](ev)
+      f = []
+      for e in self.UUIDS:
+        if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
+        and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
+          f += [e]
+      self.hs[h](ev, f)
   def get(self, x):
     for e in self.UUIDS:
       if e.UUID == x:
@@ -198,34 +203,28 @@ class UUIDs:
     for e in self.UUIDS:
       e.render()
     self.tk.update()
-  def motion(self, ev):
+  def motion(self, ev, f):
     pass
-  def onclick1(self, ev):
+  def onclick1(self, ev, f):
     self.click_moved = False
     self.in_motion = None
-    for e in self.UUIDS:
-      if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
-      and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
-        self.in_motion = e.UUID
-  def onrel1(self,ev):
+    for e in f:
+      self.in_motion = e.UUID
+  def onrel1(self,ev, f):
     if not self.click_moved:
-      for e in self.UUIDS:
-        if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
-        and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
-          e.onclick1()
-  def motion1(self, ev):
+      for e in f:
+        e.onclick1()
+  def motion1(self, ev, f):
     self.click_moved = True
     if self.in_motion is not None:
       self.get(self.in_motion).motion(ev)
-  def onclick2(self, ev):
+  def onclick2(self, ev, f):
     self.click_moved = False
-  def onrel2(self,ev):
+  def onrel2(self,ev, f):
     if not self.click_moved:
-      for e in self.UUIDS:
-        if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
-        and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
-          e.onclick2()
-  def motion2(self, ev):
+      for e in f:
+        e.onclick2()
+  def motion2(self, ev, f):
     self.click_moved = True
   def onkey(self, ev):
     if self.rounding:

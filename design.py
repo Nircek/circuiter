@@ -6,13 +6,27 @@ class pos:
   def __init__(self, *a):
     if len(a) == 1:
       a = a[0]
+    if hasattr(a, 'x') and hasattr(a, 'y'):
+      a = (a.x, a.y)
     self.x = a[0]
     self.y = a[1]
     self.w = a[0]
     self.h = a[1]
+  def arr(self):
+    return (self.x, self.y)
 
 def dist(a,b):
   return math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
+
+def az(a,b):
+  # SRC: https://gist.github.com/Nircek/76453baf3f734215a4e56c5479e3d964
+  """It calculates azimuth from a( [dd, dd] ) to b( [dd, dd] )"""
+  dx = b[0] - a[0]
+  dy = b[1] - a[1]
+  a = math.degrees(math.atan2(dy, dx))
+  if a < 0:
+    a += 360
+  return a
     
 class element:
   slots = 0
@@ -60,14 +74,14 @@ class line(element):
     return 'line'
   def __init__(self, parent, p, name=None, ins=None, st='black'):
     super().__init__(parent, p, name, ins, st)
-    self.parent.h1 = True
+    self.parent.h = True
     self.parent.r1 = self.r1
     self.parent.m = self.m
     self.e = self.p
   def r1(self, ev):
     self.parent.r1 = None
     self.parent.m = None
-    self.parent.h1 = False
+    self.parent.h = False
   def m(self, ev):
     self.e = pos(ev.x, ev.y)
   def render(self):
@@ -82,11 +96,29 @@ class arc(element):
     self.r = 0
     self.parent.r1 = self.r1
     self.parent.m = self.m
-    self.parent.h1 = True
+    self.parent.h = True
   def m(self, ev):
     self.r = dist(self.p, ev)
   def r1(self, ev):
-    self.parent.h1 = False
+    self.parent.m = self.m_1
+    self.parent.r1 = self.r1_1
+    self.arc[1] = 180 - 45
+    self.m_1(ev)
+  def m_1(self, ev):
+    self.arc[0] = 360 - az(self.p.arr(), pos(ev).arr())
+    self.arc[0] = math.ceil(self.arc[0]/5)*5
+  def r1_1(self, ev):
+    self.parent.m = self.m_2
+    self.parent.r1 = self.r1_2
+    self.m_2(ev)
+  def m_2(self, ev):
+    self.arc[1] = 360 - az(self.p.arr(), pos(ev).arr()) - self.arc[0]
+    if self.arc[1] <= 0:
+      self.arc[1] += 360
+    self.arc[1] = round(self.arc[1]/5)*5
+    print(self.arc[1])
+  def r1_2(self, ev):
+    self.parent.h = False
     self.parent.m = None
     self.parent.r1 = None
   def render(self):
@@ -117,10 +149,13 @@ class UUIDs:
     self.in_motion = None
     self.click_moved = False
     self.rounding = True
-    self.h1 = False
+    self.h = False
     self.c1 = None
     self.m1 = None
     self.r1 = None
+    self.c2 = None
+    self.m2 = None
+    self.r2 = None
     self.m = None
   def get(self, x):
     for e in self.UUIDS:
@@ -161,7 +196,7 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.h1:
+    if self.h:
       if self.m is not None:
         self.m(ev)
       return
@@ -169,7 +204,7 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.h1:
+    if self.h:
       if self.c1 is not None:
         self.c1(ev)
       return
@@ -183,7 +218,7 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.h1:
+    if self.h:
       if self.r1 is not None:
         self.r1(ev)
       return
@@ -196,7 +231,7 @@ class UUIDs:
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
-    if self.h1:
+    if self.h:
       if self.m1 is not None:
         self.m1(ev)
       return
@@ -204,17 +239,35 @@ class UUIDs:
     if self.in_motion is not None:
       self.get(self.in_motion).motion(ev)
   def onclick2(self, ev):
+    if self.h:
+      if self.c2 is not None:
+        if self.rounding:
+          ev.x = round(ev.x, -1)
+          ev.y = round(ev.y, -1)
+        self.c2(ev)
+      return
     self.click_moved = False
   def onrel2(self,ev):
     if self.rounding:
       ev.x = round(ev.x, -1)
       ev.y = round(ev.y, -1)
+    if self.h:
+      if self.r2 is not None:
+        self.r2(ev)
+      return
     if not self.click_moved:
       for e in self.UUIDS:
         if  ev.x >= e.p.x and ev.x <= e.p.x+e.s.w \
         and ev.y >= e.p.y and ev.y <= e.p.y+e.s.h:
           e.onclick2()
   def motion2(self, ev):
+    if self.h:
+      if self.m2 is not None:
+        if self.rounding:
+          ev.x = round(ev.x, -1)
+          ev.y = round(ev.y, -1)
+        self.m2(ev)
+      return
     self.click_moved = True
   def onkey(self, ev):
     if self.rounding:

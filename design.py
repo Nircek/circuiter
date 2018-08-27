@@ -111,7 +111,20 @@ class arc(element):
     self.parent.h = None
   def render(self):
     self.parent.arc(self.p.x, self.p.y, self.r, self.arc[0], self.arc[1], self.st)
-  
+class arc2(element):
+  def __str__(self):
+    return 'arc2'
+  def __init__(self, parent, p, name=None, ins=None, st='black'):
+    super().__init__(parent, p, name, ins, st)
+    self.parent.h = {'r1': self.r1, 'm': self.m}
+    self.q = p
+  def r1(self, ev):
+    self.parent.h = None
+  def m(self, ev):
+    self.q = pos(ev)
+  def render(self):
+    self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
+
 class UUIDs:
   def arc(self,x,y,r,s,e, outline='black'):
     if e >= 360:
@@ -232,7 +245,7 @@ class UUIDs:
       ev.y = round(ev.y, -1)
     print(ev)
     if ev.keycode > 111 and ev.keycode < 111+13:
-      gates = [None, element, line, arc]
+      gates = [None, element, line, arc, arc2]
       b = gates[ev.keycode-111]
       self.new(b, pos(ev.x-b.s.w//2, ev.y-b.s.h//2))
     if ev.keycode == 220:

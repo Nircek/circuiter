@@ -1,6 +1,7 @@
 import code
 from tkinter import *
 import math
+from math import radians
 
 class pos:
   def __init__(self, *a):
@@ -18,6 +19,17 @@ class pos:
 def dist(a,b):
   return math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
 
+def avr(*a):
+  x = 0
+  y = 0
+  n = len(a)
+  for i in a:
+    x += i.x
+    y += i.y
+  x = x/n
+  y = y/n
+  return pos(x, y)
+
 def az(a,b):
   # SRC: https://gist.github.com/Nircek/76453baf3f734215a4e56c5479e3d964
   """It calculates azimuth from a( [dd, dd] ) to b( [dd, dd] )"""
@@ -27,7 +39,12 @@ def az(a,b):
   if a < 0:
     a += 360
   return a
-    
+
+def nc(x, a, d):
+  return (x[0]+d*math.cos(math.radians(a)), x[1]+d*math.sin(radians(a)))
+
+
+
 class element:
   slots = 0
   s = pos(1, 1)
@@ -125,13 +142,19 @@ class arc2(element):
     self.parent.h = None
   def m(self, ev):
     self.q = pos(ev)
+    self.r = avr(self.p, self.q)
   def m_1(self, ev):
-    self.c = pos(ev)
+    self.c = pos(nc(self.r.arr(), az(self.p.arr(), self.r.arr())+90, dist(pos(ev), self.r)))
   def render(self):
     if self.c is None:
       self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
     else:
       self.parent.arc(self.c.x, self.c.y, dist(self.c, self.p), 0, 360)
+      element(self.parent, self.c).render()
+      element(self.parent, self.p).render()
+      element(self.parent, self.q).render()
+      element(self.parent, self.r).render()
+      
 
 class UUIDs:
   def arc(self,x,y,r,s,e, outline='black'):

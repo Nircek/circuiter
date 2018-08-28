@@ -118,12 +118,20 @@ class arc2(element):
     super().__init__(parent, p, name, ins, st)
     self.parent.h = {'r1': self.r1, 'm': self.m}
     self.q = p
+    self.c = None
   def r1(self, ev):
+    self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
+  def r1_1(self, ev):
     self.parent.h = None
   def m(self, ev):
     self.q = pos(ev)
+  def m_1(self, ev):
+    self.c = pos(ev)
   def render(self):
-    self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
+    if self.c is None:
+      self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
+    else:
+      self.parent.arc(self.c.x, self.c.y, dist(self.c, self.p), 0, 360)
 
 class UUIDs:
   def arc(self,x,y,r,s,e, outline='black'):

@@ -32,16 +32,15 @@ def avr(*a):
 
 def az(a,b):
   # SRC: https://gist.github.com/Nircek/76453baf3f734215a4e56c5479e3d964
-  """It calculates azimuth from a( [dd, dd] ) to b( [dd, dd] )"""
-  dx = b[0] - a[0]
-  dy = b[1] - a[1]
+  dx = b.x - a.x
+  dy = b.y - a.y
   a = math.degrees(math.atan2(dy, dx))
   if a < 0:
     a += 360
   return a
 
 def nc(x, a, d):
-  return (x[0]+d*math.cos(math.radians(a)), x[1]+d*math.sin(radians(a)))
+  return (x.x+d*math.cos(math.radians(a)), x.y+d*math.sin(radians(a)))
 
 
 
@@ -115,12 +114,12 @@ class arc(element):
     self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
     self.arc[1] = 180 - 45
   def m_1(self, ev):
-    self.arc[0] = 360 - az(self.p.arr(), pos(ev).arr())
+    self.arc[0] = 360 - az(self.p, pos(ev))
     self.arc[0] = math.ceil(self.arc[0]/5)*5
   def r1_1(self, ev):
     self.parent.h = {'r1': self.r1_2, 'm': self.m_2}
   def m_2(self, ev):
-    self.arc[1] = 360 - az(self.p.arr(), pos(ev).arr()) - self.arc[0]
+    self.arc[1] = 360 - az(self.p, pos(ev)) - self.arc[0]
     if self.arc[1] <= 0:
       self.arc[1] += 360
     self.arc[1] = round(self.arc[1]/5)*5
@@ -137,8 +136,6 @@ class arc2(element):
     self.parent.h = {'r1': self.r1, 'm': self.m}
     self.q = p
     self.c = None
-    self.a = pos(0, 0)
-    self.b = pos(0, 0)
   def r1(self, ev):
     self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
   def r1_1(self, ev):
@@ -147,8 +144,8 @@ class arc2(element):
     self.q = pos(ev)
     self.r = avr(self.p, self.q)
   def m_1(self, ev):
-    a = pos(nc(self.r.arr(), az(self.p.arr(), self.r.arr())+90, dist(pos(ev), self.r)))
-    b = pos(nc(self.r.arr(), az(self.p.arr(), self.r.arr())+270, dist(pos(ev), self.r)))
+    a = pos(nc(self.r, az(self.p, self.r)+90, dist(pos(ev), self.r)))
+    b = pos(nc(self.r, az(self.p, self.r)+270, dist(pos(ev), self.r)))
     if dist(a,pos(ev)) < dist(b,pos(ev)):
       self.c = a
     else:

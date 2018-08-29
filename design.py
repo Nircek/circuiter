@@ -136,6 +136,7 @@ class arc2(element):
     self.parent.h = {'r1': self.r1, 'm': self.m}
     self.q = p
     self.c = None
+    self.arc = [0, 360]
   def r1(self, ev):
     self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
   def r1_1(self, ev):
@@ -148,13 +149,19 @@ class arc2(element):
     b = pos(nc(self.r, az(self.p, self.r)+270, dist(pos(ev), self.r)))
     if dist(a,pos(ev)) < dist(b,pos(ev)):
       self.c = a
+      self.arc = [360-az(self.c, self.q), az(self.c, self.q)-az(self.c, self.p)]
     else:
       self.c = b
+      self.arc = [360-az(self.c, self.p), az(self.c, self.p)-az(self.c, self.q)]
+    print(self.arc)
+    print(az(self.c, self.p), az(self.c, self.q))
+    if self.arc[0] <= 0:
+      self.arc[0] += 360
   def render(self):
     if self.c is None:
       self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
     else:
-      self.parent.arc(self.c.x, self.c.y, dist(self.c, self.p), 0, 360)
+      self.parent.arc(self.c.x, self.c.y, dist(self.c, self.p), self.arc[0], self.arc[1])
       element(self.parent, self.c).render()
       element(self.parent, self.p).render()
       element(self.parent, self.q).render()

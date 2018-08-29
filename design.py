@@ -128,6 +128,7 @@ class arc(element):
     self.parent.h = None
   def render(self):
     self.parent.arc(self.p.x, self.p.y, self.r, self.arc[0], self.arc[1], self.st)
+
 class arc2(element):
   def __str__(self):
     return 'arc2'
@@ -136,6 +137,8 @@ class arc2(element):
     self.parent.h = {'r1': self.r1, 'm': self.m}
     self.q = p
     self.c = None
+    self.a = pos(0, 0)
+    self.b = pos(0, 0)
   def r1(self, ev):
     self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
   def r1_1(self, ev):
@@ -144,7 +147,12 @@ class arc2(element):
     self.q = pos(ev)
     self.r = avr(self.p, self.q)
   def m_1(self, ev):
-    self.c = pos(nc(self.r.arr(), az(self.p.arr(), self.r.arr())+90, dist(pos(ev), self.r)))
+    a = pos(nc(self.r.arr(), az(self.p.arr(), self.r.arr())+90, dist(pos(ev), self.r)))
+    b = pos(nc(self.r.arr(), az(self.p.arr(), self.r.arr())+270, dist(pos(ev), self.r)))
+    if dist(a,pos(ev)) < dist(b,pos(ev)):
+      self.c = a
+    else:
+      self.c = b
   def render(self):
     if self.c is None:
       self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)

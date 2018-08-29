@@ -153,19 +153,15 @@ class arc2(element):
     else:
       self.c = b
       self.arc = [360-az(self.c, self.p), az(self.c, self.p)-az(self.c, self.q)]
+    if self.arc[1] <= 0:
+      self.arc[1] += 360
     print(self.arc)
     print(az(self.c, self.p), az(self.c, self.q))
-    if self.arc[0] <= 0:
-      self.arc[0] += 360
   def render(self):
     if self.c is None:
       self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
     else:
       self.parent.arc(self.c.x, self.c.y, dist(self.c, self.p), self.arc[0], self.arc[1])
-      element(self.parent, self.c).render()
-      element(self.parent, self.p).render()
-      element(self.parent, self.q).render()
-      element(self.parent, self.r).render()
       
 
 class UUIDs:

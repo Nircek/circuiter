@@ -1,6 +1,7 @@
 import code
 from tkinter import *
 import math
+from math import radians
 
 class pos:
   def __init__(self, *a):
@@ -18,16 +19,31 @@ class pos:
 def dist(a,b):
   return math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
 
+def avr(*a):
+  x = 0
+  y = 0
+  n = len(a)
+  for i in a:
+    x += i.x
+    y += i.y
+  x = x/n
+  y = y/n
+  return pos(x, y)
+
 def az(a,b):
   # SRC: https://gist.github.com/Nircek/76453baf3f734215a4e56c5479e3d964
-  """It calculates azimuth from a( [dd, dd] ) to b( [dd, dd] )"""
-  dx = b[0] - a[0]
-  dy = b[1] - a[1]
+  dx = b.x - a.x
+  dy = b.y - a.y
   a = math.degrees(math.atan2(dy, dx))
   if a < 0:
     a += 360
   return a
-    
+
+def nc(x, a, d):
+  return (x.x+d*math.cos(math.radians(a)), x.y+d*math.sin(radians(a)))
+
+
+
 class element:
   slots = 0
   s = pos(1, 1)
@@ -98,12 +114,12 @@ class arc(element):
     self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
     self.arc[1] = 180 - 45
   def m_1(self, ev):
-    self.arc[0] = 360 - az(self.p.arr(), pos(ev).arr())
+    self.arc[0] = 360 - az(self.p, pos(ev))
     self.arc[0] = math.ceil(self.arc[0]/5)*5
   def r1_1(self, ev):
     self.parent.h = {'r1': self.r1_2, 'm': self.m_2}
   def m_2(self, ev):
-    self.arc[1] = 360 - az(self.p.arr(), pos(ev).arr()) - self.arc[0]
+    self.arc[1] = 360 - az(self.p, pos(ev)) - self.arc[0]
     if self.arc[1] <= 0:
       self.arc[1] += 360
     self.arc[1] = round(self.arc[1]/5)*5
@@ -111,7 +127,43 @@ class arc(element):
     self.parent.h = None
   def render(self):
     self.parent.arc(self.p.x, self.p.y, self.r, self.arc[0], self.arc[1], self.st)
-  
+
+class arc2(element):
+  def __str__(self):
+    return 'arc2'
+  def __init__(self, parent, p, name=None, ins=None, st='black'):
+    super().__init__(parent, p, name, ins, st)
+    self.parent.h = {'r1': self.r1, 'm': self.m}
+    self.q = p
+    self.c = None
+    self.arc = [0, 360]
+  def r1(self, ev):
+    self.parent.h = {'r1': self.r1_1, 'm': self.m_1}
+  def r1_1(self, ev):
+    self.parent.h = None
+  def m(self, ev):
+    self.q = pos(ev)
+    self.r = avr(self.p, self.q)
+  def m_1(self, ev):
+    a = pos(nc(self.r, az(self.p, self.r)+90, dist(pos(ev), self.r)))
+    b = pos(nc(self.r, az(self.p, self.r)+270, dist(pos(ev), self.r)))
+    if dist(a,pos(ev)) < dist(b,pos(ev)):
+      self.c = a
+      self.arc = [360-az(self.c, self.q), az(self.c, self.q)-az(self.c, self.p)]
+    else:
+      self.c = b
+      self.arc = [360-az(self.c, self.p), az(self.c, self.p)-az(self.c, self.q)]
+    if self.arc[1] <= 0:
+      self.arc[1] += 360
+    print(self.arc)
+    print(az(self.c, self.p), az(self.c, self.q))
+  def render(self):
+    if self.c is None:
+      self.parent.w.create_line(self.p.x,self.p.y,self.q.x,self.q.y, fill=self.st)
+    else:
+      self.parent.arc(self.c.x, self.c.y, dist(self.c, self.p), self.arc[0], self.arc[1])
+      
+
 class UUIDs:
   def arc(self,x,y,r,s,e, outline='black'):
     if e >= 360:
@@ -232,7 +284,7 @@ class UUIDs:
       ev.y = round(ev.y, -1)
     print(ev)
     if ev.keycode > 111 and ev.keycode < 111+13:
-      gates = [None, element, line, arc]
+      gates = [None, element, line, arc, arc2]
       b = gates[ev.keycode-111]
       self.new(b, pos(ev.x-b.s.w//2, ev.y-b.s.h//2))
     if ev.keycode == 220:

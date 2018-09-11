@@ -325,6 +325,10 @@ class UUIDs:
 UUIDS = UUIDs()
 s = 70
 in1 = UUIDS.new(element,pos(s,s))
-while 1:
-  UUIDS.render()
-code.InteractiveConsole(vars()).interact()
+try:
+  while 1:
+    UUIDS.render()
+except TclError:
+  # window exit
+  pass
+# code.InteractiveConsole(vars()).interact()

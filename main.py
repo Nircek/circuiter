@@ -85,14 +85,14 @@ class element:
     if  ev.x >= self.p.x and ev.x <= self.p.x+self.s.w \
     and ev.y >= self.p.y and ev.y <= self.p.y+self.s.h:
       print(self.UUID)
-      if ev.keycode == ord('D'):
+      if ev.keysym.upper() == 'D':
         self.inputs = []
-      elif ev.keycode == ord('I'):
+      elif ev.keysym.upper() == 'I':
         self.parent.selected = self.UUID
-      elif ev.keycode == ord('O') and self.parent.selected is not None:
+      elif ev.keysym.upper() == 'O' and self.parent.selected is not None:
         self.inputs += [self.parent.selected]
         self.parent.get(self.parent.selected).outs += [self]
-      elif ev.keycode == 46:
+      elif ev.keysym == 'Delete':
         for e in self.outs:
           i=0
           while i < len(e.inputs):
@@ -346,13 +346,14 @@ class UUIDs:
     self.rmc.y = ev.y
   def onkey(self, ev):
     print(ev)
-    if ev.keycode > 111 and ev.keycode < 111+13:
-      gates = [None, switch, light, NOTgate, ORgate, ANDgate]
-      b = gates[ev.keycode-111]
+    if len(ev.keysym)>1 and ev.keysym[:1] == 'F':
+      nr = int(ev.keysym[1:])-1
+      gates = [switch, light, NOTgate, ORgate, ANDgate]
+      b = gates[nr]
       self.new(b, pos(ev.x-b.s.w//2, ev.y-b.s.h//2))
-    if ev.keycode == 220:
+    if ev.keysym == 'backslash':
       code.InteractiveConsole(vars()).interact()
-    if ev.state == 0x40001:
+    if (ev.state&1)!=0 and ev.keysym == 'Delete':
       self.UUIDS = []
       self.UUIDi = 0
     for e in self.UUIDS:

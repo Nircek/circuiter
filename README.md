@@ -1,4 +1,4 @@
-# Circuiter
+# Circuiter [![CodeFactor](https://www.codefactor.io/repository/github/nircek/circuiter/badge)](https://www.codefactor.io/repository/github/nircek/circuiter)
 
 Program do symulowania zachowania układów logicznych.
 

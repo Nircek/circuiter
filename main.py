@@ -26,7 +26,7 @@
 # SOFTWARE.
 
 import code
-from tkinter import *
+import tkinter as tk
 import math
 from time import time
 
@@ -130,10 +130,7 @@ class light(element):
   def __str__(self):
     return 'light'
   def calc(self, ins):
-    if len(ins) < self.slots:
-      return False
-    else:
-      return ins[0]
+    return False if len(ins) < self.slots else ins[0]
   def render(self):
     st = self.st
     if st == 'black' and self.power:
@@ -199,10 +196,7 @@ class NOTgate(element):
   def __str__(self):
     return 'NOTgate'
   def calc(self, ins):
-    if len(ins) < self.slots:
-      return not False
-    else:
-      return not ins[0]
+    return True if len(ins) < self.slots else not ins[0]
   def render(self):
     self.parent.w.create_line(self.p.x, self.p.y, self.p.x, self.p.y+40, fill=self.st)
     self.parent.w.create_line(self.p.x, self.p.y, self.p.x+32, self.p.y+20, fill=self.st)
@@ -223,15 +217,15 @@ class UUIDs:
     return 'black'
   def arc(self,x,y,r,s,e, outline='black'):
     if e >= 360:
-      self.w.create_arc(x-r,y-r,x+r,y+r,start=0,extent=180,style=ARC,outline=outline)
-      self.w.create_arc(x-r,y-r,x+r,y+r,start=180,extent=180,style=ARC,outline=outline)
+      self.w.create_arc(x-r,y-r,x+r,y+r,start=0,extent=180,style='arc',outline=outline)
+      self.w.create_arc(x-r,y-r,x+r,y+r,start=180,extent=180,style='arc',outline=outline)
     else:
-      self.w.create_arc(x-r,y-r,x+r,y+r,start=s,extent=e,style=ARC, outline=outline)
+      self.w.create_arc(x-r,y-r,x+r,y+r,start=s,extent=e,style='arc', outline=outline)
   def __init__(self, WIDTH=1280, HEIGHT=720):
     self.UUIDS = []
     self.UUIDi = -1
-    self.tk = Tk()
-    self.w = Canvas(self.tk, width=WIDTH, height=HEIGHT)
+    self.tk = tk.Tk()
+    self.w = tk.Canvas(self.tk, width=WIDTH, height=HEIGHT)
     self.w.bind('<Button 1>',self.onclick1)
     self.w.bind('<ButtonRelease-1>', self.onrel1)
     self.w.bind('<B1-Motion>', self.motion1)
@@ -378,7 +372,7 @@ try:
     t = time()
     while t+0.2 > time():
       UUIDS.render()
-except TclError:
+except tk.TclError:
   # window exit
   pass
 # code.InteractiveConsole(vars()).interact()
